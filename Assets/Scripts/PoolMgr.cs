@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class PoolMgr : Singleton<PoolMgr>
 {
-    private Dictionary<string, PoolData> _poolDic = new Dictionary<string, PoolData>();
+    private readonly Dictionary<string, PoolData> _poolDic = new Dictionary<string, PoolData>();
 
     private GameObject _poolObj;
 
@@ -15,51 +15,81 @@ public class PoolMgr : Singleton<PoolMgr>
     private static bool IsOpenLayout => true;
     
     private PoolMgr() { }
-    
+
     /// <summary>
     /// 获取对象
     /// </summary>
     /// <param name="poolName">所取对象名称</param>
+    /// <param name="maxNum">最大限制数量</param>
     /// <returns>对象池中取得（或创建）的对象</returns>
-    public GameObject GetObj(string poolName)
+    public GameObject GetObj(string poolName, int maxNum = 50)
     {
+        if(_poolObj == null && IsOpenLayout)
+            _poolObj = new GameObject(name: "Pool");
+        
         GameObject obj = null;
-        if (_poolDic.ContainsKey(poolName) && _poolDic[poolName].Count > 0)
-        {
-            obj = _poolDic[poolName].Pop();
-        }
-        else
+
+        #region 加入了上限后的逻辑
+        
+        if (!_poolDic.ContainsKey(poolName) || (_poolDic[poolName].Count == 0 && _poolDic[poolName].UsingCount < maxNum))
         {
             obj = GameObject.Instantiate(Resources.Load<GameObject>(poolName));
             obj.name = poolName;
+            
+            if(!_poolDic.ContainsKey(poolName))
+                _poolDic.Add(poolName, new PoolData(_poolObj, obj.name, obj));
+            else
+            {
+                _poolDic[poolName].PushUsingList(obj);
+            }
         }
+        else if (_poolDic[poolName].Count > 0 || _poolDic[poolName].UsingCount >= maxNum)
+        {
+            obj = _poolDic[poolName].Pop();
+        }
+        
+        #endregion
+        
+        #region 没有加入上限时的逻辑
+        
+        // if (_poolDic.ContainsKey(poolName) && _poolDic[poolName].Count > 0)
+        // {
+        //     obj = _poolDic[poolName].Pop();
+        // }
+        // else
+        // {
+        //     obj = GameObject.Instantiate(Resources.Load<GameObject>(poolName));
+        //     obj.name = poolName;
+        // }
+        
+        #endregion
         
         return obj;
     }
 
     /// <summary>
-    /// 释放对象
+    /// 压入对象
     /// </summary>
-    /// <param name="poolName">释放对象名称</param>
-    /// <param name="obj">释放对象</param>
+    /// <param name="poolName">压入对象名称</param>
+    /// <param name="obj">压入对象</param>
     public void PushObj(string poolName, GameObject obj)
     {
         if(_poolObj == null && IsOpenLayout)
             _poolObj = new GameObject(name: "Pool");
         
         obj.SetActive(false);
-        if (!_poolDic.ContainsKey(poolName))
-        {
-            _poolDic.Add(poolName, new PoolData(_poolObj, $"{poolName} data"));
-        }
+        // if (!_poolDic.ContainsKey(poolName))
+        // {
+        //     _poolDic.Add(poolName, new PoolData(_poolObj, $"{poolName} data"));
+        // }
         _poolDic[poolName].Push(obj);
         obj.transform.SetParent(IsOpenLayout ? _poolObj.transform : null);
     }
 
     /// <summary>
-    /// 释放对象（默认名称）
+    /// 压入对象（默认名称）
     /// </summary>
-    /// <param name="obj">释放对象</param>
+    /// <param name="obj">压入对象</param>
     public void PushObj(GameObject obj)
     {
         PushObj(obj.name, obj);
@@ -88,27 +118,34 @@ public class PoolMgr : Singleton<PoolMgr>
     /// </summary>
     private class PoolData
     {
-        private Stack<GameObject> _objs = new Stack<GameObject>();
-        private GameObject _rootObj;
+        private readonly Stack<GameObject> _availableObjs = new Stack<GameObject>();
         
-        public int Count => _objs.Count;
+        private readonly LinkedList<GameObject> _usingObjs = new LinkedList<GameObject>();
+        
+        private readonly GameObject _rootObj;
+        
+        public int Count => _availableObjs.Count;
+        public int UsingCount => _usingObjs.Count;
 
         /// <summary>
         /// 创建抽屉，同时关联其父对象
         /// </summary>
         /// <param name="poolObj">对象池父物体</param>
         /// <param name="rootName">柜子名称</param>
-        public PoolData(GameObject poolObj, string rootName)
+        /// <param name="usedObj">该柜子中第一个使用中的物体</param>
+        public PoolData(GameObject poolObj, string rootName, GameObject usedObj)
         {
             if (IsOpenLayout)
             {
                 _rootObj = new GameObject(name: rootName);
                 _rootObj.transform.SetParent(poolObj.transform);
             }
+            
+            _usingObjs.AddLast(usedObj);
         }
 
         /// <summary>
-        /// 压入数据对象
+        /// 数据对象压入
         /// </summary>
         /// <param name="obj">压入对象</param>
         public void Push(GameObject obj)
@@ -118,16 +155,41 @@ public class PoolMgr : Singleton<PoolMgr>
             {
                 obj.transform.SetParent(_rootObj.transform);
             }
-            _objs.Push(obj);
+            _availableObjs.Push(obj);
+            _usingObjs.Remove(obj);
         }
 
         /// <summary>
-        /// 弹出数据对象
+        /// 使用中对象压入
+        /// </summary>
+        /// <param name="obj">压入使用中对象</param>
+        public void PushUsingList(GameObject obj)
+        {
+            obj.SetActive(false);
+            if (IsOpenLayout)
+            {
+                obj.transform.SetParent(_rootObj.transform);
+            }
+            _usingObjs.AddLast(obj);
+        }
+
+        /// <summary>
+        /// 数据对象弹出
         /// </summary>
         /// <returns>所需对象</returns>
         public GameObject Pop()
         {
-            GameObject obj = _objs.Pop();
+            GameObject obj;
+            
+            if(Count > 0)
+                obj = _availableObjs.Pop();
+            else
+            {
+                obj = _usingObjs.First.Value;
+                _usingObjs.RemoveFirst();
+            }
+            _usingObjs.AddLast(obj);
+                    
             obj.SetActive(true);
             if (IsOpenLayout)
             {
