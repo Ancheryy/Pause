@@ -11,7 +11,7 @@ using UnityEngine;
 public class EditorResMgr : Singleton<EditorResMgr>
 {
     // 防止需要打包进AB包中的资源路径
-    private string _rootPath = "Assets/Editor/ArtRes/";
+    private readonly string _rootPath = "Assets/Editor/ArtRes/";
     // 防止已经加载过的图集资源
     private readonly Dictionary<string, List<Object>> _loadedSprites = new Dictionary<string, List<Object>>();
 
@@ -33,7 +33,7 @@ public class EditorResMgr : Singleton<EditorResMgr>
             return null;
         }
         
-        T res = AssetDatabase.LoadAssetAtPath<T>(_rootPath + path);
+        T res = AssetDatabase.LoadAssetAtPath<T>(_rootPath + path + suffixName);
         return res;
     }
 

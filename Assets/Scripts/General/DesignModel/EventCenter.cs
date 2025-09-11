@@ -37,7 +37,7 @@ public class EventCenter
     /// </summary>
     /// <param name="evt">事件</param>
     /// <typeparam name="TEvent">事件类型</typeparam>
-    public void Publish<TEvent>(TEvent evt) where TEvent : IEvent
+    public static void Publish<TEvent>(TEvent evt) where TEvent : IEvent
     {
         var eventType = typeof(TEvent);
         if (!Subscriptions.TryGetValue(eventType, out var subscriptions)) 
