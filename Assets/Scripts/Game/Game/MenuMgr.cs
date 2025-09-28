@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,10 +10,33 @@ public class MenuMgr : MonoSingleton<MenuMgr>
     public GameObject menu;
     
     private MenuMgr() { }
+
+    public void Start()
+    {
+        
+    }
     
+    // 点击游戏开始
+    // 淡出菜单界面，关闭当前 MenuScene（LoadScene 方法自动实现），加载新关卡
     public void OnClickGameStart()
     {
-        MonoMgr.StartGlobalCoroutine(DoStartGame());
+        Canvas uiCanvas = GameMgr.Instance.UICanvas;
+        
+        AnimSequence anim = AnimMgr.Instance.CreateSequence();
+        anim.AddNode(() =>
+        {
+            startButton.GetComponent<UIFade>().FadeOut(0.4f);
+            startButton.interactable = false;
+            uiCanvas.GetComponent<UIFade>().FadeOut(1.0f);
+        }).AddWait(1.0f).AddNode(() =>
+        {
+            uiCanvas.gameObject.SetActive(false);
+            // 这里的章节过场应该与每个章节第一关结合在一块，不再单独显现
+            SceneMgr.Instance.LoadScene<Checkpoint1_1.LoadCheckpoint1_1Event>("Checkpoint1_1"); // 或者说加载之前的存档记录
+            // 这里应该先出现章节过场，然后再加载关卡场景
+        });
+        
+        anim.Play();
     }
 
     public void OnClickSetting()
@@ -24,36 +48,10 @@ public class MenuMgr : MonoSingleton<MenuMgr>
     {
 
     }
+    
+    
 
-
-
-    IEnumerator DoStartGame()
-    {
-        Canvas gameCanvas = CanvasMgr.Instance.GameCanvas;
-        Canvas uiCanvas = CanvasMgr.Instance.UICanvas;
-        
-        startButton.GetComponent<UIFade>().FadeOut(0.4f);
-
-        // 2. 进行Canvas间的切换
-        startButton.interactable = false;
-        uiCanvas.GetComponent<UIFade>().FadeOut(1.0f);
-
-        yield return new WaitForSeconds(1.0f);
-        uiCanvas.gameObject.SetActive(false);
-        gameCanvas.gameObject.SetActive(true);
-        gameCanvas.GetComponent<UIFade>().FadeIn(0.8f);
-
-        // 3. 等待章节标题显现，然后进入当前章节游戏
-        yield return new WaitForSeconds(1.0f);
-        yield return ChapterMgr.Instance.DoShowTitle();
-
-        yield return new WaitForSeconds(3.0f);
-        startButton.gameObject.SetActive(true);
-        startButton.interactable = true;
-        startButton.GetComponent<CanvasGroup>().alpha = 1f;
-    }
-
-    public void ResetMenuCanvas()
+    private void ResetMenuCanvas()
     {
         startButton.gameObject.SetActive(true);
         startButton.interactable = true;
@@ -66,27 +64,27 @@ public class MenuMgr : MonoSingleton<MenuMgr>
     /// </summary>
     public void BackToMenu()
     {
-        MonoMgr.StartGlobalCoroutine(DoShowMenu());
+        // MonoMgr.StartGlobalCoroutine(DoShowMenu());
     }
 
-    IEnumerator DoShowMenu()
-    {
-        GameObject menuScene = MenuMgr.Instance.menu;
-        Canvas menuCanvas = CanvasMgr.Instance.uiCanvas;
-        // 重新设置按键等状态
-        ResetMenuCanvas();
-
-        CanvasMgr.Instance.GameCanvas.GetComponent<UIFade>().FadeOut(0.8f);
-
-        yield return new WaitForSeconds(1.0f);
-        CanvasMgr.Instance.GameCanvas.gameObject.SetActive(false);
-        menuCanvas.gameObject.SetActive(true);
-        menuCanvas.enabled = true;
-        menuScene.SetActive(true);
-        menuCanvas.GetComponent<UIFade>().FadeIn(0.8f);
-        menuScene.GetComponent<UIFade>().FadeIn(0.8f);
-
-        yield return new WaitForSeconds(1.0f);
-        menuScene.GetComponent<CanvasGroup>().alpha = 1f;
-    }
+    // IEnumerator DoShowMenu()
+    // {
+    //     GameObject menuScene = MenuMgr.Instance.menu;
+    //     Canvas menuCanvas = CanvasMgr.Instance.uiCanvas;
+    //     // 重新设置按键等状态
+    //     ResetMenuCanvas();
+    //
+    //     CanvasMgr.Instance.GameCanvas.GetComponent<UIFade>().FadeOut(0.8f);
+    //
+    //     yield return new WaitForSeconds(1.0f);
+    //     CanvasMgr.Instance.GameCanvas.gameObject.SetActive(false);
+    //     menuCanvas.gameObject.SetActive(true);
+    //     menuCanvas.enabled = true;
+    //     menuScene.SetActive(true);
+    //     menuCanvas.GetComponent<UIFade>().FadeIn(0.8f);
+    //     menuScene.GetComponent<UIFade>().FadeIn(0.8f);
+    //
+    //     yield return new WaitForSeconds(1.0f);
+    //     menuScene.GetComponent<CanvasGroup>().alpha = 1f;
+    // }
 }

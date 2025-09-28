@@ -3,10 +3,11 @@ using DG.Tweening;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public interface IEnterStrategy
 {
-    IEnumerator ExecuteEnter(GameObject currentLevelUI);
+    IEnumerator ExecuteEnter(Image currentLevelUI);
 
 }
 
@@ -20,11 +21,11 @@ public class DefaultFadeEnter : IEnterStrategy
         this.onComplete = onComplete;
     }
 
-    public IEnumerator ExecuteEnter(GameObject currentLevelUI)
+    public IEnumerator ExecuteEnter(Image currentLevelUI)
     {
         CanvasGroup group = currentLevelUI.GetComponent<CanvasGroup>();
-        group.alpha = 0f;
-        yield return group.DOFade(1f, 0.5f).SetEase(Ease.Linear).WaitForCompletion();
+        group.alpha = 1f;
+        yield return group.DOFade(0f, 0.5f).SetEase(Ease.Linear).WaitForCompletion();
         this.onComplete?.Invoke();
     }
 }
@@ -39,11 +40,11 @@ public class StraightEnter : IEnterStrategy
         this.onComplete = onComplete;
     }
 
-    public IEnumerator ExecuteEnter(GameObject currentLevelUI)
+    public IEnumerator ExecuteEnter(Image currentLevelUI)
     {
         yield return null;
         CanvasGroup group = currentLevelUI.GetComponent<CanvasGroup>();
-        group.alpha = 1f;
+        group.alpha = 0f;
         this.onComplete?.Invoke();
     }
 }
@@ -53,26 +54,26 @@ public class StraightEnter : IEnterStrategy
 
 public interface IExitStrategy
 {
-    IEnumerator ExecuteExit(GameObject currentLevelUI, GameObject nextLevelUI = null);
+    IEnumerator ExecuteExit(Image currentLevelUI);
 }
 
 // 默认淡出
 public class DefaultFadeExit : IExitStrategy
 {
-    public IEnumerator ExecuteExit(GameObject currentLevelUI, GameObject nextLevelUI = null)
+    public IEnumerator ExecuteExit(Image currentLevelUI)
     {
         CanvasGroup group = currentLevelUI.GetComponent<CanvasGroup>();
-        yield return group.DOFade(0f, 0.8f).SetEase(Ease.Linear).WaitForCompletion();
+        yield return group.DOFade(1f, 0.8f).SetEase(Ease.Linear).WaitForCompletion();
     }
 }
 
 // 直切退出
 public class StraightExit : IExitStrategy
 {
-    public IEnumerator ExecuteExit(GameObject currentLevelUI, GameObject nextLevelUI = null)
+    public IEnumerator ExecuteExit(Image currentLevelUI)
     {
         yield return null;
         CanvasGroup group = currentLevelUI.GetComponent<CanvasGroup>();
-        group.alpha = 0f;
+        group.alpha = 1f;
     }
 }

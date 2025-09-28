@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: CheckpointScenes
+  m_EditorClassIdentifier: 
+  m_GroupName: CheckpointScenes
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 057e33515f77e684e80a4d61531e0db5
+  m_SerializeEntries:
+  - m_GUID: 8e8a441ee3f9d8f4398357a438301ec6
+    m_Address: Checkpoint1_2
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Checkpoint
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f83863504449e3b4aa12a9aca60fa393
+    m_Address: Checkpoint1_1
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Checkpoint
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0e6bb5443798e074bb899337886e901e, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5e9aeb9f14dc8b247a609bfad6a4dba3, type: 2}
+    - {fileID: 11400000, guid: 3fc698a48640a194faebd3d2759295a8, type: 2}

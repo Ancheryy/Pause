@@ -56,7 +56,7 @@ public class EventCenter
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError($"EventBus: Error handling event {eventType.Name}: {ex}");
+                        Debug.LogError($"EventCenter: Error handling event {eventType.Name}: {ex}");
                     }
                 }
             }

@@ -5,17 +5,13 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 // 管理整局游戏的 Canvas：
-// gameCanvas：游戏画布，用于显示游戏 UI
 // uiCanvas：UI 画布，用于显示游戏界面（或菜单界面）的选项 UI
 public class CanvasMgr : MonoSingleton<CanvasMgr>
 {
-    [SerializeField]
-    private Canvas gameCanvas;
-    [SerializeField]
-    public Canvas uiCanvas;
-
-    public Canvas GameCanvas => gameCanvas;
-    public Canvas UICanvas => uiCanvas;
+    // [SerializeField]
+    // public Canvas uiCanvas;
+    //
+    // public Canvas UICanvas => uiCanvas;
     
     private CanvasMgr() { }
 
@@ -25,4 +21,5 @@ public class CanvasMgr : MonoSingleton<CanvasMgr>
 
         DOTween.Init();
     }
+    
 }

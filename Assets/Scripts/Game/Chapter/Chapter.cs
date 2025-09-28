@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chapter
+public abstract class Chapter
 {
     // 章节 全局唯一标识
     public int ID { get; }
@@ -27,4 +27,11 @@ public class Chapter
         this.CheckpointNum = checkpoints.Length;
     }
     
+}
+
+public class Chapter1 : Chapter
+{
+    public Chapter1(int id, string name, params Checkpoint[] checkpoints) : base(id, name, checkpoints)
+    {
+    }
 }
