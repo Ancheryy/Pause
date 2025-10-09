@@ -110,6 +110,14 @@ public abstract class Checkpoint
     protected abstract void StartNextCheckpoint();
 }
 
+// 泛型基类，自动处理各个关卡的事件订阅
+// 每个关卡加载顺序说明：
+/* 1. （上一关卡）StartNextCheckpoint() 或 在第一关读取进度并直接加载 -- SceneMgr.Instance.LoadScene<T4>(nextCheckpoint.Name)  =>  EventCenter.Publish 下一关卡的加载事件，如：Checkpoint1_1.LoadCheckpoint1_1Event
+ * 2. （当前关卡）BeginAfterLoad(T1 evt) -- base.Begin() -- InitializeGameplay()（这里的初始化关卡逻辑可以选择在各个关卡的 Gameplay 类中直接通过 Awake() 调用） -- SceneMgr.Instance.EnterCheckpoint(this) 展示入场效果（如：淡入）  =>  EventCenter.Publish 场景加载结束事件 SceneMgr.EnterSceneCompleteEvent
+ * 3. 当前关卡游戏逻辑结束  =>  Event.Publish 关卡通关事件，如：Checkpoint1_1.PassCheckpoint1_1Event
+ * 4. Check(T2 evt) -- base.End() -- SceneMgr.Instance.ExitLevel(this) 展示退场效果（如：淡出）  =>  EventCenter.Publish 结束退场事件 SceneMgr.ExitCompleteEvent
+ * 5. （base.Begin() 中）匿名函数 -- StartNextCheckpoint()（判断是否是最后一关，如果是，退出；如果不是，继续开启下一关） -- SceneMgr.Instance.LoadScene<T4>(nextCheckpoint.Name)  =>  开启循环
+ */
 public abstract class Checkpoint<T1, T2, T3, T4> : Checkpoint where T1 : EventCenter.IEvent where T2 : EventCenter.IEvent where T3 : EventCenter.IEvent, new() where T4 : EventCenter.IEvent, new()
 {
     // 只要实例化，就一定会调用订阅方法
@@ -218,14 +226,15 @@ public class Checkpoint1_2 : Checkpoint<Checkpoint1_2.LoadCheckpoint1_2Event, Ch
 
 public class Checkpoint1_3 : Checkpoint<Checkpoint1_3.LoadCheckpoint1_3Event, Checkpoint1_3.PassCheckpoint1_3Event, Checkpoint1_3.InitCheckpoint1_3Event, Checkpoint1_4.LoadCheckpoint1_4Event>
 {
-    public Checkpoint1_3(int id = 102, string name = "Checkpoint1_2", string nextCheckpointName = "Checkpoint1_3") : base(id, name, nextCheckpointName)
+    public Checkpoint1_3(int id = 103, string name = "Checkpoint1_3", string nextCheckpointName = "Checkpoint1_4") : base(id, name, nextCheckpointName)
     {
         
     }
 
     protected override void LoadStrategy()
     {
-        throw new System.NotImplementedException();
+        SetEnterStrategy(new DefaultFadeEnter());
+        SetExitStrategy(new DefaultFadeExit());
     }
     
     

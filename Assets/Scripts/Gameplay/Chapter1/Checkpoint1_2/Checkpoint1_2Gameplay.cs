@@ -132,7 +132,6 @@ public class Checkpoint1_2Gameplay : PrefabSingleton<Checkpoint1_2Gameplay>
         {
             return;
         }
-
         if (evt.TriggerCheckpoint == null && !isDebug)
         {
             return;

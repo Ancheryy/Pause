@@ -46,7 +46,7 @@ public class AnimMgr : Singleton<AnimMgr>
     
     public void Log(string message)
     {
-        if (_enableLogging) Debug.Log($"[AnimMgr] {message}");
+        // if (_enableLogging) Debug.Log($"[AnimMgr] {message}");
     }
 }
 
