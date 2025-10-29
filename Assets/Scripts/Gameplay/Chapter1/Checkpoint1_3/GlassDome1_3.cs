@@ -8,29 +8,35 @@ using UnityEngine.UI;
 
 public class GlassDome1_3 : MonoBehaviour
 {
-    public int glassDomeId;
-    public bool isClickable = true;
-    public GameObject glassDomeOpen;
-    public Collider2D cld2D;
+    [SerializeField] public int glassDomeId;
+    [SerializeField] public bool isClickable = true;
+    [SerializeField] public GameObject glassDomeClose;
+    [SerializeField] public GameObject glassDomeOpen;
+    [SerializeField] public Collider2D cld2D;
     
-    private Vector3 originalPos;
+    private Vector3 _originalPos;
 
     private void Awake()
     {
-        originalPos = transform.position;
+        _originalPos = glassDomeClose.transform.position;
     }
     
     
     public void OpenGlassDome()
     {
-        this.gameObject.SetActive(false);
+        glassDomeClose.gameObject.SetActive(false);
         glassDomeOpen.gameObject.SetActive(true);
     }
 
     public void CloseGlassDome()
     {
-        this.gameObject.SetActive(true);
+        glassDomeClose.gameObject.SetActive(true);
         glassDomeOpen.gameObject.SetActive(false);
+    }
+    
+    public void ResetPosition()
+    {
+        glassDomeClose.transform.position = _originalPos;
     }
 
 }

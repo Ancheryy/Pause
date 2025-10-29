@@ -29,6 +29,12 @@ public class AttachableZone1_1 : MonoBehaviour
 
     public void CheckSnap(GameObject go, out bool needReset)
     {
+        if (!GetComponent<TargetZone1_1>().isAvailable)
+        {
+            needReset = true;
+            return;
+        }
+        
         needReset = false;
         // 符合吸附条件
         if (collider2D.OverlapPoint(go.transform.position))

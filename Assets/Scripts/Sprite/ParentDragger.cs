@@ -25,6 +25,12 @@ public class ParentDragger : MonoBehaviour
         {
             _col = gameObject.AddComponent<BoxCollider2D>();
         }
+        // 将父物体设置为更下层的渲染顺序
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+        if (renderer != null)
+        {
+            renderer.sortingOrder = 0;  // 父物体在下层
+        }
     }
     
     void OnMouseDown()
@@ -49,8 +55,20 @@ public class ParentDragger : MonoBehaviour
     private bool IsClickOnObject()
     {
         Vector2 mousePos = _camera.ScreenToWorldPoint(Input.mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-        return hit.collider != null && hit.collider.gameObject == gameObject;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero);
+    
+        // 按渲染顺序或特定条件排序，确保最上层的对象优先
+        System.Array.Sort(hits, (a, b) => 
+            b.collider.bounds.size.magnitude.CompareTo(a.collider.bounds.size.magnitude));
+    
+        foreach (var hit in hits)
+        {
+            if (hit.collider.gameObject == gameObject)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     
     private void StartDragging()
@@ -85,5 +103,29 @@ public class ParentDragger : MonoBehaviour
     private void StopDragging()
     {
         _isDragging = false;
+    }
+    
+    // 在Inspector中显示调试信息
+    void OnDrawGizmosSelected()
+    {
+        // 绘制限制区域
+        if (limitX)
+        {
+            Gizmos.color = new Color(1, 0.5f, 0, 0.3f);
+            
+            Vector3 center = new Vector3(
+                limitX ? (minX + maxX) / 2f : transform.position.x,
+                transform.position.y,
+                transform.position.z
+            );
+            
+            Vector3 size = new Vector3(
+                limitX ? maxX - minX : 10f,
+                10f,
+                0.1f
+            );
+            
+            Gizmos.DrawWireCube(center, size);
+        }
     }
 }

@@ -25,10 +25,11 @@ public class TargetZone1_1 : MonoBehaviour
         return false;
     }
 
-    public void ReplaceSprite()
+    // 显示金光特效
+    public void ShowGoldenLight()
     {
         if (!isAvailable)
-            return;   // 代表已经匹配，不再替换
+            return;   // 代表已经匹配，不再显示金光特效
 
         MonoMgr.StartGlobalCoroutine(DoReplaceSprite());
     }
@@ -45,6 +46,7 @@ public class TargetZone1_1 : MonoBehaviour
         GetComponent<AttachableZone1_1>().collider2D.GetComponent<SpriteFade>().FadeOut(0.4f);
         GetComponent<AttachableZone1_1>().attachedObject.GetComponent<SpriteFade>().FadeIn(0.4f);
         GetComponent<AttachableZone1_1>().attachedObject.GetComponent<Dragger>().enableDrag = false;
+        // GetComponent<AttachableZone1_1>().collider2D.gameObject.SetActive(false);
     }
 
     public bool IsAvailable()

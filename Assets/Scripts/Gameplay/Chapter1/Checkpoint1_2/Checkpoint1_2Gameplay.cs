@@ -57,7 +57,8 @@ public class Checkpoint1_2Gameplay : PrefabSingleton<Checkpoint1_2Gameplay>
     {
         if (isDebug)
         {
-            EventCenter.Publish(new SceneMgr.EnterSceneCompleteEvent(null));
+            // 主动触发原本应该在 SceneMgr.LoadScene() 方法中触发的 两个 事件
+            EventCenter.Publish(new SceneMgr.EndLoadSceneEvent());
             EventCenter.Publish(new Checkpoint1_2.LoadCheckpoint1_2Event());
         }
     }
@@ -119,14 +120,14 @@ public class Checkpoint1_2Gameplay : PrefabSingleton<Checkpoint1_2Gameplay>
             isClicked[i] = false;
         }
         _subscriptions = new List<IDisposable>();
-        _subscriptions.Add(EventCenter.Subscribe<SceneMgr.EnterSceneCompleteEvent>(PlayFourDomeMusic));
+        _subscriptions.Add(EventCenter.Subscribe<SceneMgr.EnterStrategyCompleteEvent>(PlayFourDomeMusic));
         Musics = new Dictionary<int, string>();
     }
 
     // Part 1:
     // 4 个玻璃罩依次打开并播放音效
     // 需要对触发事件的关卡进行判断
-    private void PlayFourDomeMusic(SceneMgr.EnterSceneCompleteEvent evt)
+    private void PlayFourDomeMusic(SceneMgr.EnterStrategyCompleteEvent evt)
     {
         if (evt.TriggerCheckpoint != null && evt.TriggerCheckpoint.ID != 102)
         {

@@ -164,7 +164,7 @@ public class EventCenter
 
         public void Dispose()
         {
-            if (_isDisposed)
+            if (!_isDisposed)
             {
                 _action = null;
                 _isDisposed = true;

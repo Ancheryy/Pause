@@ -1,94 +1,63 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameMgr : MonoSingleton<GameMgr>
 {
-    [SerializeField] private Canvas uiCanvas;
-    [SerializeField] private GameObject gameTips;
-    [SerializeField] private Image background;
+    // （当前）关卡控制器
+    private CheckpointController _checkpointController;
     
-    public Canvas UICanvas => uiCanvas;
-
     private IDisposable _subscription1;
-
-    // 全局游戏初始化入口，在 Awake() 前调用，且自动调用
-    [RuntimeInitializeOnLoadMethod]
-    private static void Initialize()
-    {
-        FlowController.CreateChapters();
-    }
-    
     
     protected override void Awake()
     {
         base.Awake();
+        // 判断对象是否被销毁，若被销毁则不执行后续代码
+        if (this.IsDestroyed()) return;
 
         // GameMgr 为继承了 MonoBehaviour 的懒汉式单例类，只适合用于初始化游戏进程中 逻辑层 的相关数据
-        _subscription1 = EventCenter.Subscribe<EnterGameEvent>(ShowGameTips);
-        
+        // 现在这段逻辑只会在游戏启动时执行一次
+        Debug.Log("GameMgr Awake()");
+        // if (_subscription1 == null)
+        // {
+        //     _subscription1 = EventCenter.Subscribe<SceneMgr.EndLoadSceneEvent>(GetCheckpointController);
+        // }
+        // else
+        // {
+        //     _subscription1.Dispose();
+        //     _subscription1 = EventCenter.Subscribe<SceneMgr.EndLoadSceneEvent>(GetCheckpointController);
+        //     Debug.Log("GameMgr.GetCheckpointController() 方法当前更新订阅了 SceneMgr.EndLoadSceneEvent 事件");
+        // }
+
     }
 
-    private void Start()
+    private void GetCheckpointController(SceneMgr.EndLoadSceneEvent evt)
     {
-        EventCenter.Publish(new EnterGameEvent());
+        _checkpointController = FindObjectOfType<CheckpointController>();
+        if(_checkpointController == null)
+        {
+            Debug.LogWarning("场景中没有找到 CheckpointController 组件");
+            return;
+        }
+        _checkpointController.CreateCheckpoint();
     }
     
-    public void ShowGameTips(EnterGameEvent evt)
+    // 订阅 SceneMgr.EndLoadSceneEvent 事件
+    public void SubscribeEndLoadSceneEvent()
     {
-        GameObject menu = MenuMgr.Instance.menu;
-        
-        AnimSequence anim = AnimMgr.Instance.CreateSequence();
-        anim.AddNode(() =>
+        if (_subscription1 == null)
         {
-            uiCanvas.gameObject.SetActive(true);
-            gameTips.SetActive(true);
-            menu.SetActive(false);
-            gameTips.GetComponent<UIFade>().FadeIn(0.8f);
-        }).AddWait(3.0f).AddNode(() =>
+            _subscription1 = EventCenter.Subscribe<SceneMgr.EndLoadSceneEvent>(GetCheckpointController);
+        }
+        else
         {
-            background.gameObject.SetActive(true);
-            gameTips.GetComponent<UIFade>().FadeOut(0.8f);
-        }).AddWait(1.0f).AddNode(() =>
-        {
-            gameTips.SetActive(false);
-            menu.SetActive(true);
-            menu.GetComponent<UIFade>().FadeIn(0.8f);
             _subscription1.Dispose();
-            _subscription1 = null;
-        }).AddWait(0.8f).AddNode(() =>
-        {
-            // 恢复菜单按键功能
-            MenuMgr.Instance.startButton.gameObject.SetActive(true);
-            MenuMgr.Instance.startButton.interactable = true;
-            MenuMgr.Instance.startButton.GetComponent<CanvasGroup>().alpha = 1f;
-        });
-        
-        anim.Play();
+            _subscription1 = EventCenter.Subscribe<SceneMgr.EndLoadSceneEvent>(GetCheckpointController);
+            Debug.Log("GameMgr.GetCheckpointController() 方法当前更新订阅了 SceneMgr.EndLoadSceneEvent 事件");
+        }
     }
 
-
-    public void ExitGame()
-    {
-        DoExitGame();
-    }
-
-    private void DoExitGame()
-    {
-        // SaveManager.Instance.SaveGameOnExit();
-
-        Application.Quit();
-
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
-    }
-
-    // 游戏开始事件
-    public class EnterGameEvent : EventCenter.IEvent
-    {
-        
-    }
 }

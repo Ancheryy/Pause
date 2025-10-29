@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -111,6 +112,16 @@ public class AnimSequence
         }
     
         return AddNode(ActionCoroutine(), nodeName);
+    }
+    
+    public AnimSequence AddWaitOneFrame(string nodeName = "WaitOneFrame")
+    {
+        return AddNode(WaitOneFrameCoroutine(), nodeName);
+
+        IEnumerator WaitOneFrameCoroutine()
+        {
+            yield return new WaitForNextFrameUnit();
+        }
     }
 
     /// <summary>

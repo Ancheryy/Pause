@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2842059085895742967}
   - component: {fileID: 8617160744828475958}
   - component: {fileID: 36633610571344121}
+  - component: {fileID: 6051905695352352218}
   m_Layer: 5
   m_Name: UIMask_Image
   m_TagString: UIMask
@@ -85,9 +86,23 @@ CanvasGroup:
   m_GameObject: {fileID: 4462751084216101884}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
+--- !u!114 &6051905695352352218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4462751084216101884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd69f1bce71225541b7c9fae4342360a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeDuration: 1
+  fadeEase: 1
 --- !u!1 &7506406484325331216
 GameObject:
   m_ObjectHideFlags: 0

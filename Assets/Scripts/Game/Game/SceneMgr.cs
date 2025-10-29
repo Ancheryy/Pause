@@ -26,6 +26,9 @@ public class SceneMgr : MonoSingleton<SceneMgr>
             SceneInstance newScene = _currentScene;
             SceneManager.SetActiveScene(newScene.Scene);
             
+            // 先发布 场景加载结束 事件，调用方法：动态创建关卡实例 GameMgr.GetCheckpointController()（就是 Checkpoint 类对象）
+            EventCenter.Publish<EndLoadSceneEvent>(new EndLoadSceneEvent());
+            // 再发布 加载关卡 事件，如：Checkpoint1_1.LoadCheckpoint1_1Event 调用方法：开始 / 初始化 关卡（Checkpoint.Begin()）
             EventCenter.Publish<T>(new T());
             callback?.Invoke();
         });
@@ -72,7 +75,7 @@ public class SceneMgr : MonoSingleton<SceneMgr>
         _uiMask.gameObject.SetActive(false);
         
         // 发布结束入场事件（订阅方法：关卡开始时需要进行自启动的方法，比如开局显示蓝色手指提示）
-        EventCenter.Publish(new EnterSceneCompleteEvent(checkpoint));
+        EventCenter.Publish(new EnterStrategyCompleteEvent(checkpoint));
     }
     
     private GameObject CreateDefaultUIMask()
@@ -137,12 +140,17 @@ public class SceneMgr : MonoSingleton<SceneMgr>
     
     
 
-    // 关卡入场结束 事件
-    public class EnterSceneCompleteEvent : EventCenter.IEvent
+    //  加载关卡结束 事件
+    public class EndLoadSceneEvent : EventCenter.IEvent
     {
-        public Checkpoint TriggerCheckpoint;
+        
+    }
+    // 关卡入场结束 事件
+    public class EnterStrategyCompleteEvent : EventCenter.IEvent
+    {
+        public readonly Checkpoint TriggerCheckpoint;
 
-        public EnterSceneCompleteEvent(Checkpoint triggerCheckpoint)
+        public EnterStrategyCompleteEvent(Checkpoint triggerCheckpoint)
         {
             TriggerCheckpoint = triggerCheckpoint;
         }

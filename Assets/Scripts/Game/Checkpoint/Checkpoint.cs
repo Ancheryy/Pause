@@ -113,7 +113,7 @@ public abstract class Checkpoint
 // 泛型基类，自动处理各个关卡的事件订阅
 // 每个关卡加载顺序说明：
 /* 1. （上一关卡）StartNextCheckpoint() 或 在第一关读取进度并直接加载 -- SceneMgr.Instance.LoadScene<T4>(nextCheckpoint.Name)  =>  EventCenter.Publish 下一关卡的加载事件，如：Checkpoint1_1.LoadCheckpoint1_1Event
- * 2. （当前关卡）BeginAfterLoad(T1 evt) -- base.Begin() -- InitializeGameplay()（这里的初始化关卡逻辑可以选择在各个关卡的 Gameplay 类中直接通过 Awake() 调用） -- SceneMgr.Instance.EnterCheckpoint(this) 展示入场效果（如：淡入）  =>  EventCenter.Publish 场景加载结束事件 SceneMgr.EnterSceneCompleteEvent
+ * 2. （当前关卡）BeginAfterLoad(T1 evt) -- base.Begin() -- InitializeGameplay()（这里的初始化关卡逻辑可以选择在各个关卡的 Gameplay 类中直接通过 Awake() 调用） -- SceneMgr.Instance.EnterCheckpoint(this) 展示入场效果（如：淡入）  =>  EventCenter.Publish 场景加载结束事件 SceneMgr.EnterStrategyCompleteEvent
  * 3. 当前关卡游戏逻辑结束  =>  Event.Publish 关卡通关事件，如：Checkpoint1_1.PassCheckpoint1_1Event
  * 4. Check(T2 evt) -- base.End() -- SceneMgr.Instance.ExitLevel(this) 展示退场效果（如：淡出）  =>  EventCenter.Publish 结束退场事件 SceneMgr.ExitCompleteEvent
  * 5. （base.Begin() 中）匿名函数 -- StartNextCheckpoint()（判断是否是最后一关，如果是，退出；如果不是，继续开启下一关） -- SceneMgr.Instance.LoadScene<T4>(nextCheckpoint.Name)  =>  开启循环
@@ -162,11 +162,11 @@ public abstract class Checkpoint<T1, T2, T3, T4> : Checkpoint where T1 : EventCe
     
     
     // 转到下一关
-    protected sealed override  void StartNextCheckpoint()
+    protected sealed override void StartNextCheckpoint()
     {
         if (typeof(T4) != typeof(EndOfCheckpointEvent))
         {
-            Checkpoint nextCheckpoint = FlowController.GetCheckpoint(NextCheckpointName);
+            Checkpoint nextCheckpoint = CheckpointFactory.CreateCheckpoint(NextCheckpointName);
             SceneMgr.Instance.LoadScene<T4>(nextCheckpoint.Name);
         }
         else
@@ -256,7 +256,8 @@ public class Checkpoint1_4 : Checkpoint<Checkpoint1_4.LoadCheckpoint1_4Event, Ch
 
     protected override void LoadStrategy()
     {
-        throw new System.NotImplementedException();
+        SetEnterStrategy(new DefaultFadeEnter());
+        SetExitStrategy(new StraightExit());
     }
     
     
@@ -278,7 +279,8 @@ public class Checkpoint1_5 : Checkpoint<Checkpoint1_5.LoadCheckpoint1_5Event, Ch
 
     protected override void LoadStrategy()
     {
-        throw new System.NotImplementedException();
+        SetEnterStrategy(new StraightEnter());
+        SetExitStrategy(new DefaultFadeExit());
     }
     
     
@@ -300,7 +302,8 @@ public class Checkpoint1_6 : Checkpoint<Checkpoint1_6.LoadCheckpoint1_6Event, Ch
 
     protected override void LoadStrategy()
     {
-        throw new System.NotImplementedException();
+        SetEnterStrategy(new DefaultFadeEnter());
+        SetExitStrategy(new DefaultFadeExit());
     }
     
     

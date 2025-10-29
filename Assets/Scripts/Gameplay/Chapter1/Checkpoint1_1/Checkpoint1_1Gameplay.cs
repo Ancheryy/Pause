@@ -47,7 +47,8 @@ public class Checkpoint1_1Gameplay : PrefabSingleton<Checkpoint1_1Gameplay>
     {
         if (isDebug)
         {
-            EventCenter.Publish(new SceneMgr.EnterSceneCompleteEvent(null));
+            // 主动触发原本应该在 SceneMgr.LoadScene() 方法中触发的 两个 事件
+            EventCenter.Publish(new SceneMgr.EndLoadSceneEvent());
             EventCenter.Publish(new Checkpoint1_1.LoadCheckpoint1_1Event());
         }
     }
@@ -67,7 +68,7 @@ public class Checkpoint1_1Gameplay : PrefabSingleton<Checkpoint1_1Gameplay>
     {
         _subscriptions = new List<IDisposable>();
         
-        _subscriptions.Add(EventCenter.Subscribe<SceneMgr.EnterSceneCompleteEvent>(ShowChapter1Title));
+        _subscriptions.Add(EventCenter.Subscribe<SceneMgr.EnterStrategyCompleteEvent>(ShowChapter1Title));
         // subscriptions.Add(EventCenter.Subscribe<Checkpoint1_1.InitCheckpoint1_1Event>(InitGameplay));
         _subscriptions.Add(EventCenter.Subscribe<Dragger.OnDragEndEvent>(CheckSwitch));
         _subscriptions.Add(EventCenter.Subscribe<AttachableZone1_1.AfterAttachEvent>(CheckPassCheckpoint));
@@ -97,7 +98,7 @@ public class Checkpoint1_1Gameplay : PrefabSingleton<Checkpoint1_1Gameplay>
         }
     }
     
-    private void ShowChapter1Title(SceneMgr.EnterSceneCompleteEvent evt)
+    private void ShowChapter1Title(SceneMgr.EnterStrategyCompleteEvent evt)
     {
         if (evt.TriggerCheckpoint != null && evt.TriggerCheckpoint.ID != 101)
         {
@@ -253,7 +254,7 @@ public class Checkpoint1_1Gameplay : PrefabSingleton<Checkpoint1_1Gameplay>
             {
                 if (matches[i])
                 {
-                    targetZones[i].GetComponent<TargetZone1_1>().ReplaceSprite();
+                    targetZones[i].GetComponent<TargetZone1_1>().ShowGoldenLight();
                 }
             }
         }
@@ -281,8 +282,12 @@ public class Checkpoint1_1Gameplay : PrefabSingleton<Checkpoint1_1Gameplay>
     
     IEnumerator DoShine()
     {
-        foreach (var targetZone in Checkpoint1_1Gameplay.Instance.targetZones)
+        foreach (var targetZone in targetZones)
         {
+            targetZone.gameObject.SetActive(true);
+            var sr2 = targetZone.GetComponent<SpriteRenderer>();
+            sr2.color = new Color(sr2.color.r, sr2.color.g, sr2.color.b, 1f);
+            // targetZone.GetComponent<SpriteRenderer>().color = sr2.color;
             targetZone.GetComponent<AttachableZone1_1>().attachedObject.GetComponent<SpriteFade>().SetAlphaImmediate(0f);
             targetZone.GetComponent<AttachableZone1_1>().attachedObject.gameObject.SetActive(false);
             targetZone.GetComponent<AttachableZone1_1>().attachedObject.GetComponent<Dragger>().enableDrag = false;

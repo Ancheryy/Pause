@@ -510,9 +510,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57ea117f9f9bce46ad492e5f48eb842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiCanvas: {fileID: 1873123300}
-  gameTips: {fileID: 674663663}
-  background: {fileID: 983362556}
 --- !u!4 &292042820
 Transform:
   m_ObjectHideFlags: 0
@@ -1411,6 +1408,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9dd0bc4e6e89e441871331b3bd665f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  menuCanvas: {fileID: 1873123300}
+  gameTips: {fileID: 674663663}
+  background: {fileID: 983362556}
   startButton: {fileID: 2430375061674626368}
   menu: {fileID: 1613002505281168434}
 --- !u!4 &1945998936
